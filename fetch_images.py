@@ -2,13 +2,14 @@ import requests
 import os
 import glob
 
+from PIL import Image
+
 out_dir = "bio-pics"
 os.makedirs(out_dir, exist_ok=True)
 url_stub = (
     "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{}&width={}"
 )
 img_list = glob.glob("bio-pics/*.*")
-print(img_list)
 
 data = requests.get(
     "https://raw.githubusercontent.com/emt-project/emt-entities/main/json_dumps/persons.json"
@@ -23,7 +24,7 @@ headers = {
 for key, value in data.items():
     emt_id = value["emt_id"]
     img_name = value["img_name"]
-    if img_name and img_name.lower().endswith(".jpg"):
+    if img_name:
         image_url = url_stub.format(img_name, "250")
         img_format = img_name.split(".")[-1]
         img_name = os.path.join(out_dir, f"{emt_id}.{img_format}".lower())
@@ -34,3 +35,7 @@ for key, value in data.items():
         print(r.status_code)
         with open(img_name, "wb") as f:
             f.write(img_data)
+        if img_name.endswith(".png"):
+            im = Image.open(img_name)
+            rgb_im = im.convert("RGB")
+            rgb_im.save(img_name.replace(".png", ".jpg"))
