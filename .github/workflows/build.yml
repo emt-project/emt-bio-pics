@@ -1,0 +1,25 @@
+name: Fetch Images
+
+on:
+    schedule:
+    - cron: "05 5 * * *"
+    workflow_dispatch:
+
+jobs:
+  build_pages:
+    name: Fetch Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip' # caching pip dependencies
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+      - name: Fetch Images
+        run: python fetch_images.py
+      - name: Commit data
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Data update
