@@ -1,7 +1,6 @@
 import requests
 import os
 import glob
-
 from PIL import Image
 
 out_dir = "bio-pics"
@@ -39,3 +38,17 @@ for key, value in data.items():
             im = Image.open(img_name)
             rgb_im = im.convert("RGB")
             rgb_im.save(img_name.replace(".png", ".jpg"))
+        if img_name.endswith(".jpeg"):
+            im = Image.open(img_name)
+            rgb_im = im.convert("RGB")
+            rgb_im.save(img_name.replace(".jpeg", ".jpg"))
+        if img_name.endswith(".gif"):
+            im = Image.open(img_name)
+            rgb_im = im.convert("RGB")
+            rgb_im.save(img_name.replace(".gif", ".jpg"))
+
+for x in sorted(glob.glob(f"{out_dir}/*.*")):
+    if x.endswith(".jpg"):
+        pass
+    else:
+        os.remove(x)
