@@ -6,12 +6,12 @@ from PIL import Image
 out_dir = "bio-pics"
 os.makedirs(out_dir, exist_ok=True)
 url_stub = (
-    "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{}&width={}"
+    "https://commons.wikimedia.org/w/index.php?title=Special:Redirect/file/{}&width={}"  # noqa: E501
 )
 img_list = glob.glob("bio-pics/*.*")
 
 data = requests.get(
-    "https://raw.githubusercontent.com/emt-project/emt-entities/main/json_dumps/persons.json"
+    "https://raw.githubusercontent.com/emt-project/emt-entities/main/json_dumps/persons.json"  # noqa: E501
 ).json()
 
 
@@ -27,17 +27,24 @@ for key, value in data.items():
         image_url = url_stub.format(img_name, "250")
         img_format = img_name.split(".")[-1]
         img_name = os.path.join(out_dir, f"{emt_id}.{img_format}".lower())
-        if img_name in img_list:
+        check_name = img_name.replace(img_name.split(".")[-1], "jpg")
+        if check_name in img_list:
             continue
+        print(
+            f"{image_url} does not exist, downloading as {img_name}"
+        )
         r = requests.get(image_url, headers=headers)
         img_data = r.content
-        print(r.status_code)
         with open(img_name, "wb") as f:
             f.write(img_data)
         if img_name.endswith(".png"):
             im = Image.open(img_name)
             rgb_im = im.convert("RGB")
             rgb_im.save(img_name.replace(".png", ".jpg"))
+        if img_name.endswith(".tif"):
+            im = Image.open(img_name)
+            rgb_im = im.convert("RGB")
+            rgb_im.save(img_name.replace(".tif", ".jpg"))
         if img_name.endswith(".jpeg"):
             im = Image.open(img_name)
             rgb_im = im.convert("RGB")
@@ -46,6 +53,10 @@ for key, value in data.items():
             im = Image.open(img_name)
             rgb_im = im.convert("RGB")
             rgb_im.save(img_name.replace(".gif", ".jpg"))
+        if img_name.endswith(".svg"):
+            im = Image.open(img_name)
+            rgb_im = im.convert("RGB")
+            rgb_im.save(img_name.replace(".svg", ".jpg"))
 
 for x in sorted(glob.glob(f"{out_dir}/*.*")):
     if x.endswith(".jpg"):
