@@ -4,6 +4,5 @@ repo to scrape and host images
 
 ## usage
 
-* create virtual env and activate it `python -m venv venv` and `source venv/bin/activate`
-* install needed packages `pip install -r requirements.txt`
-* run `python fetch_images.py`
+* install dependencies `uv sync`
+* run `uv run fetch_images.py`
