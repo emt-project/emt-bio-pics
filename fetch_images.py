@@ -16,8 +16,7 @@ data = requests.get(
 
 
 headers = {
-    "User-Agent": "My User Agent 1.0",
-    "From": "youremail@domain.example",  # This is another valid field
+    'User-Agent': f'EMT/1.0 ({os.environ.get("PROJECT_URL")}; {os.environ.get("CONTACT_EMAIL")})'
 }
 
 for key, value in data.items():
@@ -33,30 +32,25 @@ for key, value in data.items():
         print(
             f"{image_url} does not exist, downloading as {img_name}"
         )
-        r = requests.get(image_url, headers=headers)
-        img_data = r.content
-        with open(img_name, "wb") as f:
-            f.write(img_data)
-        if img_name.endswith(".png"):
-            im = Image.open(img_name)
-            rgb_im = im.convert("RGB")
-            rgb_im.save(img_name.replace(".png", ".jpg"))
-        if img_name.endswith(".tif"):
-            im = Image.open(img_name)
-            rgb_im = im.convert("RGB")
-            rgb_im.save(img_name.replace(".tif", ".jpg"))
-        if img_name.endswith(".jpeg"):
-            im = Image.open(img_name)
-            rgb_im = im.convert("RGB")
-            rgb_im.save(img_name.replace(".jpeg", ".jpg"))
-        if img_name.endswith(".gif"):
-            im = Image.open(img_name)
-            rgb_im = im.convert("RGB")
-            rgb_im.save(img_name.replace(".gif", ".jpg"))
-        if img_name.endswith(".svg"):
-            im = Image.open(img_name)
-            rgb_im = im.convert("RGB")
-            rgb_im.save(img_name.replace(".svg", ".jpg"))
+        try:
+            r = requests.get(image_url, headers=headers)
+            r.raise_for_status()
+            img_data = r.content
+            with open(img_name, "wb") as f:
+                f.write(img_data)
+        except Exception as e:
+            print(f"Failed to download {image_url}: {e}")
+            continue
+        
+        try:
+            if not img_name.endswith(".jpg"):
+                im = Image.open(img_name)
+                rgb_im = im.convert("RGB")
+                new_name = os.path.splitext(img_name)[0] + ".jpg"
+                rgb_im.save(new_name)
+        except Exception as e:
+            print(f"Failed to convert {img_name}: {e}")
+            continue
 
 for x in sorted(glob.glob(f"{out_dir}/*.*")):
     if x.endswith(".jpg"):
